@@ -27,22 +27,25 @@ DigitalOut bms_strobe(BMS_STROBE_EN);
 DigitalOut drl(DRL_EN);
 
 void signalFlashHandler() {
-    // Change lights based on CAN information
-    if (flashHazards || flashLeftTurnSignal || flashRightTurnSignal) {
-        if (flashHazards) {
-            leftTurnSignal = !leftTurnSignal;
-            rightTurnSignal = !rightTurnSignal;
-        } else if (flashLeftTurnSignal) {
-            leftTurnSignal = !leftTurnSignal;
-            rightTurnSignal = false;
-        } else if (flashRightTurnSignal) {
-            rightTurnSignal = !rightTurnSignal;
-            leftTurnSignal = false;
-        } else {
-            leftTurnSignal = false;
-            rightTurnSignal = false;
+    while (true) {
+        if (flashHazards || flashLeftTurnSignal || flashRightTurnSignal) {
+            if (flashHazards) {
+                leftTurnSignal = !leftTurnSignal;
+                rightTurnSignal = !leftTurnSignal;
+            } else if (flashLeftTurnSignal) {
+                leftTurnSignal = !leftTurnSignal;
+                rightTurnSignal = false;
+            } else if (flashRightTurnSignal) {
+                rightTurnSignal = !rightTurnSignal;
+                leftTurnSignal = false;
+            } else {
+                leftTurnSignal = false;
+                rightTurnSignal = false;
+            }
         }
     }
+    // Change lights based on CAN information
+    
 }
 
 AnalogIn fan_tach(FanTach);
