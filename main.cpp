@@ -17,7 +17,7 @@
 PowerAuxCANInterface vehicle_can_interface(MAIN_CAN_RX, MAIN_CAN_TX,
                                            MAIN_CAN_STBY);
 
-bool flashBMS = false;
+bool flashLeftTurnSignal, flashRightTurnSignal, flashHazards, flashBrakeLights = false;
 Thread signalFlashThread;
 
 DigitalOut brake_lights(BRAKE_LIGHT_EN);
@@ -28,6 +28,21 @@ DigitalOut drl(DRL_EN);
 
 void signalFlashHandler() {
     // Change lights based on CAN information
+    if (flashHazards || flashLeftTurnSignal || flashRightTurnSignal) {
+        if (flashHazards) {
+            leftTurnSignal = !leftTurnSignal;
+            rightTurnSignal = !rightTurnSignal;
+        } else if (flashLeftTurnSignal) {
+            leftTurnSignal = !leftTurnSignal;
+            rightTurnSignal = false;
+        } else if (flashRightTurnSignal) {
+            rightTurnSignal = !rightTurnSignal;
+            leftTurnSignal = false;
+        } else {
+            leftTurnSignal = false;
+            rightTurnSignal = false;
+        }
+    }
 }
 
 AnalogIn fan_tach(FanTach);
@@ -52,8 +67,10 @@ int main() {
 
 void PowerAuxCANInterface::handle(ECUPowerAuxCommands *can_struct) {
     // Process CAN data
-
-    
+    flashBrakeLights = can_struct->brakeLights;
+    flashLeftTurnSignal = can_struct->leftTurnSignal;
+    flashRightTurnSignal = can_struct->rightTurnSignal;
+    flashHazards = can_struct->hazards;
 }
 
 
